@@ -6,7 +6,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
 
-from .models import Category, Ads
+from .models import Category, Ad
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -57,7 +57,7 @@ class CategoryDetailView(DetailView):
 class AdView(View):
     def get(self, request):
         response = []
-        ads = Ads.objects.all()
+        ads = Ad.objects.all()
         for ad in ads:
             response.append({
                 "id": ad.id,
@@ -72,7 +72,7 @@ class AdView(View):
 
     def post(self, request):
         ad_data = json.loads(request.body)
-        ad = Ads()
+        ad = Ad()
         ad.name = ad_data.get("name")
         ad.author = ad_data.get("author")
         ad.price = ad_data.get("price")
@@ -95,7 +95,7 @@ class AdView(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AdDetailView(DetailView):
-    model = Ads
+    model = Ad
 
     def get(self, request, *args, **kwargs):
         ad = self.get_object()
