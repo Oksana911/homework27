@@ -1,7 +1,7 @@
 import csv
 import json
 
-DATA_ADS = 'ads2.csv'
+DATA_ADS = 'ads.csv'
 JSON_ADS = 'ads.json'
 DATA_CATEGORIES = 'categories.csv'
 JSON_CATEGORIES = 'categories.json'
@@ -29,5 +29,5 @@ def convert_to_json(csv_file, json_file, model):
         json_f.write(json.dumps(result, ensure_ascii=False))
 
 
-# convert_to_json(DATA_CATEGORIES, JSON_CATEGORIES, 'ads.category')
-# convert_to_json(DATA_ADS, JSON_ADS, 'ads.ads')
+convert_to_json(DATA_CATEGORIES, JSON_CATEGORIES, 'ads.category')
+convert_to_json(DATA_ADS, JSON_ADS, 'ads.ads')
