@@ -5,13 +5,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
 from homework27 import settings
-from users.models import User
+from users.models import User, Location
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class UserView(ListView):
     model = User
-    fields = ["first_name", "last_name", "username", "role", "age", "location_id"]
+    fields = ["first_name", "last_name", "username", "role", "age", "location"]
 
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
@@ -31,7 +31,8 @@ class UserView(ListView):
                 "username": user.username,
                 "role": user.role,
                 "age": user.age,
-                # "location_id": user.location_id
+                "ads_count": user.ads.count(),
+                "location": user.location.name
             })
 
         response = {
@@ -46,7 +47,7 @@ class UserView(ListView):
 @method_decorator(csrf_exempt, name='dispatch')
 class UserDetailView(DetailView):
     model = User
-    fields = ["first_name", "last_name", "username", "role", "age", "location_id"]
+    fields = ["first_name", "last_name", "username", "role", "age", "location"]
 
     def get(self, request, *args, **kwargs):
         user = self.get_object()
@@ -58,7 +59,7 @@ class UserDetailView(DetailView):
             "username": user.username,
             "role": user.role,
             "age": user.age,
-            # "location_id": user.location_id
+            "location": user.location.name
         },
             json_dumps_params={"ensure_ascii": False})
 
@@ -66,7 +67,7 @@ class UserDetailView(DetailView):
 @method_decorator(csrf_exempt, name='dispatch')
 class UserCreateView(CreateView):
     model = User
-    fields = ["first_name", "last_name", "username", "password", "role", "age", "location_id"]
+    fields = ["first_name", "last_name", "username", "password", "role", "age", "location"]
 
     def post(self, request, *args, **kwargs):
         user_data = json.loads(request.body)
@@ -77,9 +78,12 @@ class UserCreateView(CreateView):
             username=user_data["username"],
             password=user_data["password"],
             role=user_data["role"],
-            age=user_data["age"],
-            # location_id=user_data["location_id"]
+            age=user_data["age"]
         )
+        for location in user_data['location']:
+            loc_obj, created = Location.objects.get_or_create(name=location)
+            user.location.add(loc_obj)
+        user.save()
 
         return JsonResponse({
             "id": user.id,
@@ -88,7 +92,7 @@ class UserCreateView(CreateView):
             "username": user.username,
             "role": user.role,
             "age": user.age,
-            # "location_id": user.location_id
+            "location": [str(u) for u in user.location.all()]
         },
             json_dumps_params={"ensure_ascii": False})
 
@@ -118,7 +122,7 @@ class UserUpdateView(UpdateView):
             "username": self.object.username,
             "role": self.object.role,
             "age": self.object.age,
-            # "location": self.object.location
+            # "location": self.object.location.name
         },
             json_dumps_params={"ensure_ascii": False})
 

@@ -1,12 +1,10 @@
-from random import choices
-
 from django.db import models
 
 
 class Location(models.Model):
     name = models.CharField(max_length=100)
-    lat = models.DecimalField(max_digits=8, decimal_places=6)
-    lng = models.DecimalField(max_digits=8, decimal_places=6)
+    lat = models.DecimalField(max_digits=8, decimal_places=6, null=True)
+    lng = models.DecimalField(max_digits=8, decimal_places=6, null=True)
 
     class Meta:
         verbose_name = "Местоположение"
@@ -29,7 +27,7 @@ class User(models.Model):
     password = models.CharField(max_length=50)
     role = models.CharField(max_length=10, choices=ROLES, default='user')
     age = models.IntegerField()
-    location_id = models.ManyToManyField(Location)
+    location = models.ManyToManyField(Location)
 
     class Meta:
         verbose_name = "Пользователь"
