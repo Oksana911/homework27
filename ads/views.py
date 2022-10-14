@@ -1,5 +1,7 @@
 import json
+
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -9,6 +11,8 @@ from django.views.generic import DetailView, ListView, UpdateView, DeleteView, C
 from homework27 import settings
 from users.models import User
 from .models import Category, Ad
+from .serializers import AdSerializer
+from rest_framework.generics import ListAPIView
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -17,7 +21,7 @@ class MainView(View):
         return JsonResponse({"status": "ok"})
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+
 class CategoryView(ListView):
     model = Category
 
@@ -97,41 +101,42 @@ class CategoryDeleteView(DeleteView):
 ######################################################################
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class AdView(ListView):
-    model = Ad
-    fields = ["name", "price", "description", "is_published", "image", "author", "category"]
+class AdView(ListAPIView):
+    queryset = Ad.objects.all()
+    serializer_class = AdSerializer
 
     def get(self, request, *args, **kwargs):
-        super().get(request, *args, **kwargs)
+        categories = request.GET.getlist('category', None)  # поиск по категориям (можно по нескольким:))
+        cat_q = None
+        for cat in categories:
+            if cat_q is None:
+                cat_q = Q(category_id__in=cat)
+            else:
+                cat_q |= Q(category_id__in=cat)
 
-        self.object_list = self.object_list.order_by("-price")  # сортировка по цене по убыванию
+        if cat_q:
+            self.queryset = self.queryset.filter(cat_q)
 
-        paginator = Paginator(self.object_list, settings.TOTAL_ON_PAGE)
-        page_number = request.GET.get("page")
-        page_obj = paginator.get_page(page_number)
+        search_text = request.GET.get('text', None)  # поиск по слову
+        if search_text:
+            self.queryset = self.queryset.filter(
+                name__icontains=search_text
+            )
 
-        ads = []
-        for ad in page_obj:
-            ads.append({
-                "id": ad.id,
-                "name": ad.name,
-                "price": ad.price,
-                "description": ad.description,
-                "image": ad.image.url if ad.image else None,
-                "is_published": ad.is_published,
-                "author": ad.author.username,
-                "category": ad.category.name
-            })
+        location = request.GET.get('location', None)  # поиск по локации
+        if location:
+            self.queryset = self.queryset.filter(
+                author__location__name__icontains=location
+            )
 
-        response = {
-            "items": ads,
-            "num_pages": paginator.num_pages,
-            "total": paginator.count
-        }
+        price_from = request.GET.get('price_from', None)  # поиск по цене
+        price_to = request.GET.get('price_to', None)
+        if price_from:
+            self.queryset = self.queryset.filter(price__gte=price_from)
+        if price_to:
+            self.queryset = self.queryset.filter(price__lte=price_to)
 
-        return JsonResponse(response, safe=False, json_dumps_params={"ensure_ascii": False})
-
+        return super().get(request, *args, **kwargs)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AdDetailView(DetailView):
