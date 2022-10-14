@@ -16,7 +16,7 @@ class Location(models.Model):
 
 class User(models.Model):
     ROLES = [
-        ('user', 'member'),
+        ('member', 'user'),
         ('admin', 'admin'),
         ('moderator', 'moderator'),
     ]
