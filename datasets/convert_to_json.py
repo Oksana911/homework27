@@ -31,3 +31,4 @@ def convert_to_json(csv_file, json_file, model):
 
 convert_to_json(DATA_CATEGORIES, JSON_CATEGORIES, 'ads.category')
 convert_to_json(DATA_ADS, JSON_ADS, 'ads.ads')
+# convert_to_json(DATA_USERS, JSON_USERS, 'users.users')
