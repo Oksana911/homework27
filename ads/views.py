@@ -56,17 +56,19 @@ class CategoryDetailView(DetailView):
 @method_decorator(csrf_exempt, name='dispatch')
 class CategoryCreateView(CreateView):
     model = Category
-    fields = ["name"]
+    fields = ["name", "slug"]
 
     def post(self, request, *args, **kwargs):
         category_data = json.loads(request.body)
         category = Category.objects.create(
-            name=category_data.get("name")
+            name=category_data.get("name"),
+            slug=category_data.get("slug")
         )
 
         return JsonResponse({
             "id": category.id,
-            "name": category.name
+            "name": category.name,
+            "slug": category.slug,
         })
 
 
@@ -146,36 +148,38 @@ class AdDetailView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class AdCreateView(CreateView):
-    model = Ad
-    fields = ["name", "price", "description", "is_published", "author", "category"]
+class AdCreateView(CreateAPIView):
+    queryset = Ad.objects.all()
+    serializer_class = AdUpdateSerializer
 
-    def post(self, request, *args, **kwargs):
-        ad_data = json.loads(request.body)
-
-        author = get_object_or_404(User, id=ad_data['author'])
-        category = get_object_or_404(Category, id=ad_data['category'])
-
-        ad = Ad.objects.create(
-            name=ad_data["name"],
-            price=ad_data["price"],
-            description=ad_data["description"],
-            is_published=ad_data["is_published"],
-            author=author,
-            category=category
-        )
-
-        return JsonResponse({
-            "id": ad.id,
-            "name": ad.name,
-            "price": ad.price,
-            "description": ad.description,
-            "is_published": ad.is_published,
-            "author": ad.author.username,
-            "category": ad.category.name
-        },
-            json_dumps_params={"ensure_ascii": False})
+    # model = Ad
+    # fields = ["name", "price", "description", "is_published", "author", "category"]
+    #
+    # def post(self, request, *args, **kwargs):
+    #     ad_data = json.loads(request.body)
+    #
+    #     author = get_object_or_404(User, id=ad_data['author'])
+    #     category = get_object_or_404(Category, id=ad_data['category'])
+    #
+    #     ad = Ad.objects.create(
+    #         name=ad_data["name"],
+    #         price=ad_data["price"],
+    #         description=ad_data["description"],
+    #         is_published=ad_data["is_published"],
+    #         author=author,
+    #         category=category
+    #     )
+    #
+    #     return JsonResponse({
+    #         "id": ad.id,
+    #         "name": ad.name,
+    #         "price": ad.price,
+    #         "description": ad.description,
+    #         "is_published": ad.is_published,
+    #         "author": ad.author.username,
+    #         "category": ad.category.name
+    #     },
+    #         json_dumps_params={"ensure_ascii": False})
 
 
 @method_decorator(csrf_exempt, name='dispatch')

@@ -2,6 +2,11 @@ from rest_framework import serializers
 from users.models import User, Location
 
 
+def check_not_rambler(value):
+    if value.endswith('rambler.ru'):
+        raise serializers.ValidationError("Email shouldn't be register on rambler")
+
+
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
@@ -29,6 +34,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
                                             queryset=Location.objects.all(),
                                             many=True,
                                             slug_field="name")
+    email = serializers.EmailField(validators=[check_not_rambler])
 
     class Meta:
         model = User

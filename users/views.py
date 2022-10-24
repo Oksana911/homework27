@@ -10,6 +10,9 @@ class LocationViewSet(ModelViewSet):
     serializer_class = LocationSerializer
 
 
+##########
+
+
 class UserListView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserListSerializer
