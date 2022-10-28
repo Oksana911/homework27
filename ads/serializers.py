@@ -8,6 +8,12 @@ def check_is_false(value):
         raise serializers.ValidationError(f'{value} should be False')
 
 
+class CategoryCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
 class AdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ad

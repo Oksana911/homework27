@@ -1,3 +1,5 @@
+import json
+
 from django.core.validators import MinValueValidator, MinLengthValidator
 from django.db import models
 from users.models import User
@@ -30,7 +32,7 @@ class Ad(models.Model):
         ordering = ["name", "price", "description", "is_published", "image", "author", "category"]
 
     def __str__(self):
-        return self.name
+        return json.dumps(dict(self), ensure_ascii=True)
 
 
 class Selection(models.Model):

@@ -2,18 +2,18 @@ import pytest
 
 
 @pytest.mark.django_db
-def test_create_selection(client, token):
+def test_create_selection(client, token, user, ad):
     expected_response = {
         "id": 1,
         "name": "my_custom_selection",
-        "author": 40,
-        "items": [1, 5]
+        "author": user.id,
+        "items": [ad.id]
     }
 
     data = {
         "name": "my_custom_selection",
-        "author": 40,
-        "items": [1, 5]
+        "author": user.id,
+        "items": [ad.id]
     }
 
     response = client.post(
