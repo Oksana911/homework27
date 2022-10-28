@@ -25,7 +25,7 @@ def test_create_ad(client, token, user, ad):
 
     response = client.post(
         "/ad/create/",
-        data=json.dumps(data),
+        data=data,
         content_type="application/json",
         HTTP_AUTHORIZATION="Bearer " + token
     )
