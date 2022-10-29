@@ -1,11 +1,10 @@
-import json
 import pytest
 
 
 @pytest.mark.django_db
-def test_create_ad(client, token, user, ad):
+def test_create_ad(client, token, user):
     expected_response = {
-        "id": 2,
+        "id": 1,
         "name": "test_ad_name",
         "price": 100,
         "description": None,
@@ -16,11 +15,10 @@ def test_create_ad(client, token, user, ad):
     }
 
     data = {
-        "id": ad.id,
-        "name": ad.name,
-        "price": ad.price,
-        "is_published": ad.is_published,
-        "author": ad.author.pk
+        "name": "test_ad_name",
+        "price": 100,
+        "is_published": False,
+        "author": user.pk
     }
 
     response = client.post(
